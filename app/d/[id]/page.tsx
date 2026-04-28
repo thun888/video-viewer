@@ -9,12 +9,12 @@ export default async function ShortLinkPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  const video = db
+  const result = await db
     .select({ hash: videos.hash })
     .from(videos)
     .where(eq(videos.shortId, id))
-    .get()
 
+  const video = result[0]
   if (!video) notFound()
   redirect(`/video/${video.hash}`)
 }

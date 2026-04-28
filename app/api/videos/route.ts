@@ -14,11 +14,10 @@ export async function GET(request: Request) {
   const limit = parseInt(searchParams.get('limit') || '20')
   const offset = (page - 1) * limit
 
-  const allVideos = db
+  const allVideos = await db
     .select()
     .from(videos)
     .orderBy(desc(videos.createdAt))
-    .all()
 
   const total = allVideos.length
   const items = allVideos.slice(offset, offset + limit)
@@ -52,14 +51,14 @@ export async function POST(request: Request) {
 
   let finalShortId: string | null = null
   if (shortId) {
-    const existing = db.select({ id: videos.id }).from(videos).where(eq(videos.shortId, shortId)).get()
+    const existing = (await db.select({ id: videos.id }).from(videos).where(eq(videos.shortId, shortId)))[0]
     if (existing) {
       return Response.json({ error: 'Short ID already exists' }, { status: 409 })
     }
     finalShortId = shortId
   }
 
-  const result = db.insert(videos).values({
+  const [video] = await db.insert(videos).values({
     title,
     description: description || null,
     coverUrl: coverUrl || null,
@@ -70,9 +69,7 @@ export async function POST(request: Request) {
     shortId: finalShortId,
     hash,
     author: author || '',
-  }).run()
-
-  const video = db.select().from(videos).where(eq(videos.id, Number(result.lastInsertRowid))).get()
+  }).returning()
 
   return Response.json(video, { status: 201 })
 }

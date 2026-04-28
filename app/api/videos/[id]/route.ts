@@ -14,7 +14,8 @@ export async function GET(
     return Response.json({ error: 'Invalid ID' }, { status: 400 })
   }
 
-  const video = db.select().from(videos).where(eq(videos.id, videoId)).get()
+  const result = await db.select().from(videos).where(eq(videos.id, videoId))
+  const video = result[0]
   if (!video) {
     return Response.json({ error: 'Video not found' }, { status: 404 })
   }
@@ -41,7 +42,8 @@ export async function PUT(
     return Response.json({ error: 'Invalid ID' }, { status: 400 })
   }
 
-  const existing = db.select().from(videos).where(eq(videos.id, videoId)).get()
+  const result = await db.select().from(videos).where(eq(videos.id, videoId))
+  const existing = result[0]
   if (!existing) {
     return Response.json({ error: 'Video not found' }, { status: 404 })
   }
@@ -50,13 +52,13 @@ export async function PUT(
   const { title, description, coverUrl, mediaType, mediaUrl, isM3U8, lowLatencyMode, shortId, author } = body
 
   if (shortId && shortId !== existing.shortId) {
-    const conflict = db.select({ id: videos.id }).from(videos).where(eq(videos.shortId, shortId)).get()
+    const conflict = (await db.select({ id: videos.id }).from(videos).where(eq(videos.shortId, shortId)))[0]
     if (conflict) {
       return Response.json({ error: 'Short ID already exists' }, { status: 409 })
     }
   }
 
-  db.update(videos)
+  await db.update(videos)
     .set({
       title: title ?? existing.title,
       description: description !== undefined ? description : existing.description,
@@ -70,9 +72,8 @@ export async function PUT(
       updatedAt: new Date(),
     })
     .where(eq(videos.id, videoId))
-    .run()
 
-  const updated = db.select().from(videos).where(eq(videos.id, videoId)).get()
+  const updated = (await db.select().from(videos).where(eq(videos.id, videoId)))[0]
   return Response.json(updated)
 }
 
@@ -95,11 +96,12 @@ export async function DELETE(
     return Response.json({ error: 'Invalid ID' }, { status: 400 })
   }
 
-  const existing = db.select({ id: videos.id }).from(videos).where(eq(videos.id, videoId)).get()
+  const result = await db.select({ id: videos.id }).from(videos).where(eq(videos.id, videoId))
+  const existing = result[0]
   if (!existing) {
     return Response.json({ error: 'Video not found' }, { status: 404 })
   }
 
-  db.delete(videos).where(eq(videos.id, videoId)).run()
+  await db.delete(videos).where(eq(videos.id, videoId))
   return Response.json({ success: true })
 }

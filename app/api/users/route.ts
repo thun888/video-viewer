@@ -11,7 +11,7 @@ export async function GET() {
     return Response.json({ error: 'Forbidden' }, { status: 403 })
   }
 
-  const allUsers = db
+  const allUsers = await db
     .select({
       id: users.id,
       username: users.username,
@@ -19,7 +19,6 @@ export async function GET() {
       createdAt: users.createdAt,
     })
     .from(users)
-    .all()
 
   return Response.json(allUsers)
 }

@@ -16,15 +16,16 @@ export interface SessionPayload {
 }
 
 export async function createSession(userId: number): Promise<string> {
-  const user = db
+  const user = (await db
     .select({
       id: users.id,
       username: users.username,
       isAdmin: users.isAdmin,
     })
     .from(users)
-    .where(eq(users.id, userId))
-    .get()!
+    .where(eq(users.id, userId)))[0]
+
+  if (!user) throw new Error('User not found')
 
   return new SignJWT({
     userId: user.id,
@@ -55,11 +56,11 @@ export const getSession = cache(async (): Promise<SessionPayload | null> => {
 })
 
 export async function verifyLogin(username: string, password: string) {
-  const user = db
+  const result = await db
     .select()
     .from(users)
     .where(eq(users.username, username))
-    .get()
+  const user = result[0]
   if (!user) return null
   const valid = await compare(password, user.passwordHash)
   return valid ? user : null

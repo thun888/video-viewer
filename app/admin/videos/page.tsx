@@ -16,8 +16,8 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = { title: '视频管理 - Video Viewer' }
 
-export default function VideoListPage() {
-  const allVideos = db.select().from(videos).orderBy(desc(videos.createdAt)).all()
+export default async function VideoListPage() {
+  const allVideos = await db.select().from(videos).orderBy(desc(videos.createdAt))
 
   return (
     <div>

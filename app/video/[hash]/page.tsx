@@ -12,7 +12,8 @@ export async function generateMetadata({
   params: Promise<{ hash: string }>
 }): Promise<Metadata> {
   const { hash } = await params
-  const video = db.select().from(videos).where(eq(videos.hash, hash)).get()
+  const result = await db.select().from(videos).where(eq(videos.hash, hash))
+  const video = result[0]
   if (!video) return { title: 'Not Found' }
   return { title: `${video.title} - Video Viewer` }
 }
@@ -23,13 +24,13 @@ export default async function VideoPage({
   params: Promise<{ hash: string }>
 }) {
   const { hash } = await params
-  const video = db.select().from(videos).where(eq(videos.hash, hash)).get()
+  const result = await db.select().from(videos).where(eq(videos.hash, hash))
+  const video = result[0]
   if (!video) notFound()
 
-  db.update(videos)
+  await db.update(videos)
     .set({ viewCount: sql`view_count + 1` })
     .where(eq(videos.id, video.id))
-    .run()
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">

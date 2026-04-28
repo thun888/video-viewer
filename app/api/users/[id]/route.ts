@@ -22,7 +22,8 @@ export async function PUT(
     return Response.json({ error: 'Invalid ID' }, { status: 400 })
   }
 
-  const existing = db.select().from(users).where(eq(users.id, userId)).get()
+  const result = await db.select().from(users).where(eq(users.id, userId))
+  const existing = result[0]
   if (!existing) {
     return Response.json({ error: 'User not found' }, { status: 404 })
   }
@@ -39,12 +40,11 @@ export async function PUT(
     return Response.json({ error: 'Cannot remove your own admin status' }, { status: 400 })
   }
 
-  db.update(users)
+  await db.update(users)
     .set({ isAdmin })
     .where(eq(users.id, userId))
-    .run()
 
-  const updated = db
+  const updated = (await db
     .select({
       id: users.id,
       username: users.username,
@@ -52,8 +52,7 @@ export async function PUT(
       createdAt: users.createdAt,
     })
     .from(users)
-    .where(eq(users.id, userId))
-    .get()
+    .where(eq(users.id, userId)))[0]
 
   return Response.json(updated)
 }

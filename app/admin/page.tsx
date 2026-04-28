@@ -5,11 +5,14 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = { title: '仪表盘 - Video Viewer' }
 
-export default function AdminDashboard() {
-  const videoCount = db.select({ count: count() }).from(videos).get()!.count
-  const userCount = db.select({ count: count() }).from(users).get()!.count
-  const viewSum =
-    db.select({ total: sum(videos.viewCount) }).from(videos).get()!.total || 0
+export default async function AdminDashboard() {
+  const videoResult = await db.select({ count: count() }).from(videos)
+  const userResult = await db.select({ count: count() }).from(users)
+  const viewResult = await db.select({ total: sum(videos.viewCount) }).from(videos)
+
+  const videoCount = videoResult[0].count
+  const userCount = userResult[0].count
+  const viewSum = viewResult[0].total || 0
 
   return (
     <div>

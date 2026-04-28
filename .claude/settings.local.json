@@ -14,7 +14,8 @@
       "Bash(curl -s -b /tmp/cookies.txt http://localhost:3000/api/videos)",
       "Bash(curl -s -o /dev/null -w \"Video page: %{http_code}\\\\n\" http://localhost:3000/video/168f7ae5-c351-45ad-b3b4-fca2b673199a)",
       "Bash(curl -s -o /dev/null -w \"Short link \\(404 expected\\): %{http_code}\\\\n\" http://localhost:3000/d/nonexistent)",
-      "Bash(curl -s -o /dev/null -w \"Admin without session \\(redirect expected\\): %{http_code}\\\\n\" http://localhost:3000/admin)"
+      "Bash(curl -s -o /dev/null -w \"Admin without session \\(redirect expected\\): %{http_code}\\\\n\" http://localhost:3000/admin)",
+      "Bash(npm uninstall *)"
     ]
   }
 }

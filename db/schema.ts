@@ -1,40 +1,36 @@
 import {
-  sqliteTable,
-  text,
+  pgTable,
+  serial,
   integer,
-} from 'drizzle-orm/sqlite-core'
+  varchar,
+  text,
+  boolean,
+  timestamp,
+} from 'drizzle-orm/pg-core'
 
-export const users = sqliteTable('users', {
-  id: integer('id').primaryKey({ autoIncrement: true }),
-  username: text('username').notNull().unique(),
+export const users = pgTable('users', {
+  id: serial('id').primaryKey(),
+  username: varchar('username', { length: 255 }).notNull().unique(),
   passwordHash: text('password_hash').notNull(),
-  isAdmin: integer('is_admin', { mode: 'boolean' }).notNull().default(false),
-  createdAt: integer('created_at', { mode: 'timestamp' })
-    .notNull()
-    .$defaultFn(() => new Date()),
+  isAdmin: boolean('is_admin').notNull().default(false),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
 })
 
-export const videos = sqliteTable('videos', {
-  id: integer('id').primaryKey({ autoIncrement: true }),
-  title: text('title').notNull(),
+export const videos = pgTable('videos', {
+  id: serial('id').primaryKey(),
+  title: varchar('title', { length: 255 }).notNull(),
   description: text('description'),
   coverUrl: text('cover_url'),
-  mediaType: text('media_type', { enum: ['video', 'audio'] })
+  mediaType: varchar('media_type', { length: 10 })
     .notNull()
     .default('video'),
   mediaUrl: text('media_url').notNull(),
-  isM3U8: integer('is_m3u8', { mode: 'boolean' }).notNull().default(false),
-  lowLatencyMode: integer('low_latency_mode', { mode: 'boolean' })
-    .notNull()
-    .default(false),
-  shortId: text('short_id').unique(),
-  hash: text('hash').notNull().unique(),
+  isM3U8: boolean('is_m3u8').notNull().default(false),
+  lowLatencyMode: boolean('low_latency_mode').notNull().default(false),
+  shortId: varchar('short_id', { length: 255 }).unique(),
+  hash: varchar('hash', { length: 255 }).notNull().unique(),
   viewCount: integer('view_count').notNull().default(0),
-  author: text('author').notNull().default(''),
-  createdAt: integer('created_at', { mode: 'timestamp' })
-    .notNull()
-    .$defaultFn(() => new Date()),
-  updatedAt: integer('updated_at', { mode: 'timestamp' })
-    .notNull()
-    .$defaultFn(() => new Date()),
+  author: varchar('author', { length: 255 }).notNull().default(''),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
 })
