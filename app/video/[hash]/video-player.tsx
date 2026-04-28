@@ -43,6 +43,20 @@ export function VideoPlayer({ mediaUrl, mediaType, isM3U8, coverUrl }: VideoPlay
             })
             hls.on(Hls.Events.MANIFEST_PARSED, () => {
               video.currentTime = 0
+
+              const details = hls.levels[0]?.details
+              if (details && details.live && details.fragments.length > 0) {
+                const lastFrag = details.fragments[details.fragments.length - 1]
+                const endTime = lastFrag.start + lastFrag.duration - 0.5
+
+                const checkEnd = () => {
+                  if (video.currentTime >= endTime) {
+                    video.removeEventListener('timeupdate', checkEnd)
+                    video.dispatchEvent(new Event('ended'))
+                  }
+                }
+                video.addEventListener('timeupdate', checkEnd)
+              }
             })
             hls.loadSource(video.src)
             hls.attachMedia(video)
