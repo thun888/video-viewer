@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -15,11 +15,33 @@ import {
 } from '@/components/ui/select'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
+function generateShortId(): string {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+  let result = ''
+  for (let i = 0; i < 5; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length))
+  }
+  return result
+}
+
 export default function CreateVideoPage() {
   const router = useRouter()
   const [mediaType, setMediaType] = useState('video')
   const [error, setError] = useState('')
+  const [shortId, setShortId] = useState('')
   const formRef = useRef<HTMLFormElement>(null)
+
+  useEffect(() => {
+    fetch('/api/auth/me')
+      .then((r) => r.json())
+      .then((data) => {
+        const form = formRef.current
+        if (!form || !data.nickname) return
+        ;(form.querySelector('[name="author"]') as HTMLInputElement).value =
+          data.nickname
+      })
+      .catch(() => {})
+  }, [])
 
   async function handleSubmit(formData: FormData) {
     setError('')
@@ -104,7 +126,23 @@ export default function CreateVideoPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="shortId">短链接 ID</Label>
-              <Input id="shortId" name="shortId" placeholder="留空自动生成随机ID" />
+              <div className="flex gap-2">
+                <Input
+                  id="shortId"
+                  name="shortId"
+                  value={shortId}
+                  onChange={(e) => setShortId(e.target.value)}
+                  placeholder="留空不生成短链接"
+                  className="flex-1"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setShortId(generateShortId())}
+                >
+                  生成
+                </Button>
+              </div>
             </div>
             <div className="flex items-center gap-6">
               <label className="flex items-center gap-2">

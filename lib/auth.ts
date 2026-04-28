@@ -12,6 +12,7 @@ const SECRET = new TextEncoder().encode(process.env.JWT_SECRET!)
 export interface SessionPayload {
   userId: number
   username: string
+  nickname: string
   isAdmin: boolean
 }
 
@@ -20,6 +21,7 @@ export async function createSession(userId: number): Promise<string> {
     .select({
       id: users.id,
       username: users.username,
+      nickname: users.nickname,
       isAdmin: users.isAdmin,
     })
     .from(users)
@@ -30,6 +32,7 @@ export async function createSession(userId: number): Promise<string> {
   return new SignJWT({
     userId: user.id,
     username: user.username,
+    nickname: user.nickname,
     isAdmin: user.isAdmin,
   } as unknown as Record<string, unknown>)
     .setProtectedHeader({ alg: 'HS256' })

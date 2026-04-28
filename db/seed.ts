@@ -13,6 +13,7 @@ async function main() {
   if (existing.length === 0) {
     await db.insert(users).values({
       username: 'admin',
+      nickname: '管理员',
       passwordHash,
       isAdmin: true,
     })

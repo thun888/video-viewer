@@ -15,6 +15,15 @@ import {
 } from '@/components/ui/select'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
+function generateShortId(): string {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+  let result = ''
+  for (let i = 0; i < 5; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length))
+  }
+  return result
+}
+
 export default function EditVideoPage({
   params,
 }: {
@@ -25,6 +34,7 @@ export default function EditVideoPage({
   const [mediaType, setMediaType] = useState('video')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(true)
+  const [shortId, setShortId] = useState('')
   const formRef = useRef<HTMLFormElement>(null)
 
   useEffect(() => {
@@ -45,12 +55,11 @@ export default function EditVideoPage({
           video.mediaUrl
         ;(form.querySelector('[name="author"]') as HTMLInputElement).value =
           video.author || ''
-        ;(form.querySelector('[name="shortId"]') as HTMLInputElement).value =
-          video.shortId || ''
         ;(form.querySelector('[name="isM3U8"]') as HTMLInputElement).checked =
           video.isM3U8
         ;(form.querySelector('[name="lowLatencyMode"]') as HTMLInputElement).checked =
           video.lowLatencyMode
+        setShortId(video.shortId || '')
         setMediaType(video.mediaType)
         setLoading(false)
       })
@@ -155,7 +164,23 @@ export default function EditVideoPage({
             </div>
             <div className="space-y-2">
               <Label htmlFor="shortId">短链接 ID</Label>
-              <Input id="shortId" name="shortId" placeholder="留空清除短链接" />
+              <div className="flex gap-2">
+                <Input
+                  id="shortId"
+                  name="shortId"
+                  value={shortId}
+                  onChange={(e) => setShortId(e.target.value)}
+                  placeholder="留空清除短链接"
+                  className="flex-1"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setShortId(generateShortId())}
+                >
+                  生成
+                </Button>
+              </div>
             </div>
             <div className="flex items-center gap-6">
               <label className="flex items-center gap-2">

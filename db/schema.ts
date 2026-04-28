@@ -11,6 +11,7 @@ import {
 export const users = pgTable('users', {
   id: serial('id').primaryKey(),
   username: varchar('username', { length: 255 }).notNull().unique(),
+  nickname: varchar('nickname', { length: 255 }).notNull().default(''),
   passwordHash: text('password_hash').notNull(),
   isAdmin: boolean('is_admin').notNull().default(false),
   createdAt: timestamp('created_at').notNull().defaultNow(),
