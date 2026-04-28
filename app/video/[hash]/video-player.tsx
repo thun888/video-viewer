@@ -38,7 +38,12 @@ export function VideoPlayer({ mediaUrl, mediaType, isM3U8, coverUrl }: VideoPlay
         ;(options.video as Record<string, unknown>).type = 'customHls'
         ;(options.video as Record<string, unknown>).customType = {
           customHls(video: HTMLVideoElement) {
-            const hls = new Hls()
+            const hls = new Hls({
+              startPosition: 0,
+            })
+            hls.on(Hls.Events.MANIFEST_PARSED, () => {
+              video.currentTime = 0
+            })
             hls.loadSource(video.src)
             hls.attachMedia(video)
           },
